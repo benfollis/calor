@@ -4,6 +4,11 @@
       "Name": "Test",
       "DriverType": "ZeroKelvin",
       "UpdateInterval": 1
+    },
+    {
+      "Name": "Test2",
+      "DriverType": "ZeroKelvin",
+      "UpdateInterval": 1
     }
   ],
   "Port": 8080

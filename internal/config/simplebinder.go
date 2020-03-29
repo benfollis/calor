@@ -7,15 +7,16 @@ type SimpleBinder struct{}
 func (sb SimpleBinder) Bind(config LoadedConfig) BoundConfig {
 	numTherms := len(config.Thermometers)
 	boundTherms := make([]BoundThermometer, numTherms)
-	for _, unboundTherm := range config.Thermometers {
+	for index, unboundTherm := range config.Thermometers {
+		bound := BoundThermometer{
+			Name:           unboundTherm.Name,
+			UpdateInterval: unboundTherm.UpdateInterval,
+		}
 		switch unboundTherm.DriverType {
 		case "ZeroKelvin":
-			bound := BoundThermometer{
-				Name:        unboundTherm.Name,
-				Thermometer: thermometers.ZeroKelvin{},
-			}
-			boundTherms = append(boundTherms, bound)
+			bound.Thermometer = thermometers.ZeroKelvin{}
 		}
+		boundTherms[index] = bound
 	}
 	return BoundConfig{
 		Thermometers: boundTherms,

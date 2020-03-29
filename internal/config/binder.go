@@ -5,6 +5,7 @@ import "follis.net/internal/thermometers"
 type BoundThermometer struct {
 	Name string
 	Thermometer thermometers.Thermometer
+	UpdateInterval int
 }
 
 type BoundConfig struct {
