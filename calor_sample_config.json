@@ -1,0 +1,10 @@
+{
+  "Thermometers": [
+    {
+      "Name": "Test",
+      "DriverType": "ZeroKelvin",
+      "UpdateInterval": 1
+    }
+  ],
+  "Port": 8080
+}
