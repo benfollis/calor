@@ -14,7 +14,7 @@ func (sb SimpleBinder) Bind(config LoadedConfig) BoundConfig {
 		}
 		switch unboundTherm.DriverType {
 		case "ZeroKelvin":
-			bound.Thermometer = thermometers.ZeroKelvin{}
+			bound.Thermometer = thermometers.ZeroKelvin{Name:unboundTherm.Name}
 		}
 		boundTherms[index] = bound
 	}

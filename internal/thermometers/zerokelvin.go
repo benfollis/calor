@@ -4,9 +4,14 @@
 package thermometers
 
 type ZeroKelvin struct {
+	Name string
 }
 
 func (zk ZeroKelvin) Read() Reading {
-	reading := Reading { 0.0, "K" }
+	reading := Reading{
+		Temp: 0,
+		Unit: "K",
+		Name: zk.Name,
+	}
 	return reading;
 }
