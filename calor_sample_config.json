@@ -11,5 +11,10 @@
       "UpdateInterval": 5
     }
   ],
+  "Database": {
+    "Driver" : "SQLITE",
+    "File": "/home/kage/calor.db"
+  },
+
   "Port": 8080
 }

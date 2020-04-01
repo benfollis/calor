@@ -21,5 +21,6 @@ func (sb SimpleBinder) Bind(config LoadedConfig) BoundConfig {
 	return BoundConfig{
 		Thermometers: boundTherms,
 		Port:         config.Port,
+		Database:	  config.Database,
 	}
 }

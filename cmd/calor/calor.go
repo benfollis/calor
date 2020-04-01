@@ -1,10 +1,13 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"follis.net/internal/config"
+	"follis.net/internal/database"
 	"follis.net/internal/readings"
 	"follis.net/internal/thermometers"
+	_ "github.com/mattn/go-sqlite3"
 	"sync"
 	"time"
 )
@@ -20,10 +23,21 @@ func main() {
 	bound := configBinder.Bind(loadedConfig)
 	// start up the pub sub channels
 	ps := readings.InitializeChannel()
-
+	// TODO, factor this stuff into methods
 	readers := make([]readings.ReadAcceptor, 1)
 	readers[0] = readings.ConsoleAcceptor{}
-
+	if bound.Database.File != "" {
+		// only have SQLITE with files for now
+		//create the tables
+		db, err := sql.Open("sqlite3", bound.Database.File)
+		if err != nil {
+			panic(err)
+		}
+		database.CreateTable(db)
+		db.Close()
+		dbReader := readings.SqLiteAcceptor{DBFile:bound.Database.File}
+		readers = append(readers, dbReader)
+	}
 	//start up the producers
 	var twg sync.WaitGroup
 	// for testing, lets publish a message. We'll move this to a ticker soon

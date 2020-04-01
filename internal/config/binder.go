@@ -10,6 +10,7 @@ type BoundThermometer struct {
 
 type BoundConfig struct {
 	Thermometers []BoundThermometer
+	Database DatabaseConfig
 	Port int
 }
 
