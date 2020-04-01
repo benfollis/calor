@@ -3,6 +3,10 @@
  */
 package thermometers
 
+import (
+	"time"
+)
+
 type ZeroKelvin struct {
 	Name string
 }
@@ -12,6 +16,7 @@ func (zk ZeroKelvin) Read() Reading {
 		Temp: 0,
 		Unit: "K",
 		Name: zk.Name,
+		Time: time.Now(),
 	}
 	return reading;
 }

@@ -6,6 +6,7 @@ import (
 	"follis.net/internal/readings"
 	"follis.net/internal/thermometers"
 	"sync"
+	"time"
 )
 
 func main() {
@@ -17,16 +18,35 @@ func main() {
 	var configBinder config.ConfigBinder
 	configBinder = config.SimpleBinder{}
 	bound := configBinder.Bind(loadedConfig)
+	// start up the pub sub channels
+	ps := readings.InitializeChannel()
 
-	//
 	readers := make([]readings.ReadAcceptor, 1)
 	readers[0] = readings.ConsoleAcceptor{}
 
+	//start up the producers
+	var twg sync.WaitGroup
+	// for testing, lets publish a message. We'll move this to a ticker soon
+	for _, boundTherm := range bound.Thermometers {
+		thermometer := boundTherm.Thermometer
 
+		ticker := time.NewTicker(time.Duration(boundTherm.UpdateInterval) * time.Second)
+		twg.Add(1)
+		go func (group *sync.WaitGroup) {
+			defer group.Done()
+			for {
+				select {
+				case <-ticker.C:
+					reading := thermometer.Read()
+					ps.Pub(reading, readings.Topic)
+				}
+			}
+		}(&twg)
+		reading := thermometer.Read()
+		ps.Pub(reading, readings.Topic)
+	}
 	// fire up our reader wait group
 	var rwg sync.WaitGroup
-	// start up the pub sub channels
-	ps := readings.InitializeChannel()
 	// for every reader start a go routine subscribing to the readers
 	for _, reader := range readers {
 		rwg.Add(1)
@@ -42,12 +62,6 @@ func main() {
 
 
 
-	// for testing, lets publish a message. We'll move this to a ticker soon
-	for _, boundTherm := range bound.Thermometers {
-		thermometer := boundTherm.Thermometer
-		reading := thermometer.Read()
-		ps.Pub(reading, readings.Topic)
-	}
-	rwg.Wait()
+	twg.Wait()
 
 }

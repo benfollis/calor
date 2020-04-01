@@ -8,7 +8,7 @@
     {
       "Name": "Test2",
       "DriverType": "ZeroKelvin",
-      "UpdateInterval": 1
+      "UpdateInterval": 5
     }
   ],
   "Port": 8080
