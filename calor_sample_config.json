@@ -12,9 +12,19 @@
     }
   ],
   "Database": {
-    "Driver" : "SQLITE",
+    "DriverType" : "Sqlite",
     "File": "/home/kage/calor.db"
   },
+  "ReadAcceptors": [
+    {
+      "Name": "ConsolePrinter",
+      "DriverType": "Console"
+    },
+    {
+      "Name": "DBRecorder",
+      "DriverType": "Sqlite"
+    }
+  ],
 
   "Port": 8080
 }

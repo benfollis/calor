@@ -5,6 +5,7 @@ import (
 )
 
 type ReadAcceptor interface {
+	Name() string
 	Accept(reading thermometers.Reading)
 }
 

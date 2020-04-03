@@ -13,7 +13,7 @@ type ThermometerConfig struct {
 }
 
 type DatabaseConfig struct {
-	Driver string
+	DriverType string
 	File string
 	Host string
 	Port string
@@ -21,8 +21,14 @@ type DatabaseConfig struct {
 	Password string
 }
 
+type ReadAcceptor struct {
+	Name string
+	DriverType string
+}
+
 type LoadedConfig struct {
 	Thermometers []ThermometerConfig
 	Database DatabaseConfig
 	Port int // TCP port to start listening on
+	ReadAcceptors []ReadAcceptor // the things readings get output to
 }

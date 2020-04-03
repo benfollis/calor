@@ -1,7 +1,5 @@
 package pubsub
 
-import "fmt"
-
 type PubSub struct {
 	subscribers map[string][]chanPacket
 	capacity int
@@ -25,14 +23,12 @@ func Initialize(capacity int) *PubSub {
 
  */
 func (ps *PubSub) Subscribe(topic string) chan interface{} {
-	fmt.Println(ps)
 	current := ps.subscribers[topic]
 	newChan := make(chan interface{}, ps.capacity)
 	packet := chanPacket{
 		channel: newChan,
 		seq: len(current),
 	}
-	fmt.Println("New subscription", packet)
 	newCurrent := append(current, packet)
 	ps.subscribers[topic] = newCurrent
 	return newChan
@@ -44,7 +40,6 @@ This will block the producer if any consumer hits the capacity depth
 func (ps *PubSub) Publish(topic string, message interface{}) {
 	subs := ps.subscribers[topic]
 	for _, chanPacket := range subs {
-		fmt.Println("Sending message to chan seq", chanPacket.seq)
 		chanPacket.channel <- message
 	}
 }

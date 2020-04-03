@@ -6,6 +6,11 @@ import (
 )
 
 type ConsoleAcceptor struct {
+	MyName string
+}
+
+func (crs ConsoleAcceptor) Name() string {
+	return crs.MyName
 }
 
 func (crs ConsoleAcceptor) Accept(reading thermometers.Reading) {
