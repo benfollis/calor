@@ -7,11 +7,6 @@ type PubSub struct {
 	capacity int
 }
 
-type PubSubber interface {
-	Subscribe(topic string) chan interface{}
-	Publish(topic string, message interface{})
-}
-
 type chanPacket struct {
 	channel chan interface{}
 	seq int
@@ -30,6 +25,7 @@ func Initialize(capacity int) *PubSub {
 
  */
 func (ps *PubSub) Subscribe(topic string) chan interface{} {
+	fmt.Println(ps)
 	current := ps.subscribers[topic]
 	newChan := make(chan interface{}, ps.capacity)
 	packet := chanPacket{

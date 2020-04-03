@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"follis.net/internal/config"
 	"follis.net/internal/database"
+	"follis.net/internal/pubsub"
 	"follis.net/internal/readings"
 	"follis.net/internal/thermometers"
 	_ "github.com/mattn/go-sqlite3"
@@ -23,7 +24,7 @@ func main() {
 	configBinder = config.SimpleBinder{}
 	bound := configBinder.Bind(loadedConfig)
 	// start up the pub sub channels
-	ps := readings.InitializeChannel()
+	ps := pubsub.Initialize(100)
 	// TODO, factor this stuff into methods
 	readers := make([]readings.ReadAcceptor, 1)
 	readers[0] = readings.ConsoleAcceptor{}
@@ -44,7 +45,6 @@ func main() {
 	// for testing, lets publish a message. We'll move this to a ticker soon
 	for _, boundTherm := range bound.Thermometers {
 		thermometer := boundTherm.Thermometer
-
 		ticker := time.NewTicker(time.Duration(boundTherm.UpdateInterval) * time.Second)
 		twg.Add(1)
 		go func (group *sync.WaitGroup) {
@@ -63,19 +63,19 @@ func main() {
 	// for every reader start a go routine subscribing to the readers
 	for _, reader := range readers {
 		rwg.Add(1)
+		ch := ps.Subscribe(readings.Topic)
 		go func(group *sync.WaitGroup) {
 			defer group.Done();
-			ch := ps.Subscribe(readings.Topic)
 			for message := range ch {
-				fmt.Println("Got message", ch)
 				reading := message.(thermometers.Reading)
+				fmt.Println(reading)
 				reader.Accept(reading)
 			}
 		}(&rwg)
 	}
 
 
-
+	rwg.Wait()
 	twg.Wait()
 
 }
