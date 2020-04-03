@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"fmt"
 	"follis.net/internal/config"
 	"follis.net/internal/database"
 	"follis.net/internal/readings"
@@ -52,12 +53,10 @@ func main() {
 				select {
 				case <-ticker.C:
 					reading := thermometer.Read()
-					ps.Pub(reading, readings.Topic)
+					ps.Publish(readings.Topic, reading)
 				}
 			}
 		}(&twg)
-		reading := thermometer.Read()
-		ps.Pub(reading, readings.Topic)
 	}
 	// fire up our reader wait group
 	var rwg sync.WaitGroup
@@ -66,8 +65,9 @@ func main() {
 		rwg.Add(1)
 		go func(group *sync.WaitGroup) {
 			defer group.Done();
-			ch := ps.Sub(readings.Topic)
+			ch := ps.Subscribe(readings.Topic)
 			for message := range ch {
+				fmt.Println("Got message", ch)
 				reading := message.(thermometers.Reading)
 				reader.Accept(reading)
 			}
