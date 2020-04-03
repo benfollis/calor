@@ -11,8 +11,8 @@ import (
 	"sync"
 )
 
-func StartAcceptors(config config.BoundConfig, ps *pubsub.PubSub) *sync.WaitGroup {
-	var rwg *sync.WaitGroup
+func StartAcceptors(config config.BoundConfig, ps *pubsub.PubSub) sync.WaitGroup {
+	var rwg sync.WaitGroup
 	// if any of the read acceptors is sqlite, make sure the db exists
 	for _, bra := range config.ReadAcceptors {
 		acceptor := bra.ReadAcceptor
@@ -36,7 +36,7 @@ func StartAcceptors(config config.BoundConfig, ps *pubsub.PubSub) *sync.WaitGrou
 				reading := message.(thermometers.Reading)
 				reader.Accept(reading)
 			}
-		}(ch, acceptor, rwg)
+		}(ch, acceptor, &rwg)
 		// now start up the acceptor
 	}
 	return rwg
