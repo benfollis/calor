@@ -1,4 +1,4 @@
-package readings
+package acceptors
 
 import (
 	"fmt"

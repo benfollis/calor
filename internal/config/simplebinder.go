@@ -1,7 +1,7 @@
 package config
 
 import (
-	"follis.net/internal/readings"
+	"follis.net/internal/readings/acceptors"
 	"follis.net/internal/thermometers"
 )
 
@@ -27,9 +27,9 @@ func (sb SimpleBinder) Bind(config LoadedConfig) BoundConfig {
 		}
 		switch unboundRA.DriverType {
 		case "Console":
-			bound.ReadAcceptor = readings.ConsoleAcceptor{MyName: unboundRA.Name}
+			bound.ReadAcceptor = acceptors.ConsoleAcceptor{MyName: unboundRA.Name}
 		case "Sqlite":
-			bound.ReadAcceptor = readings.SqLiteAcceptor{
+			bound.ReadAcceptor = acceptors.SqLiteAcceptor{
 			MyName:unboundRA.Name,
 			DBFile: config.Database.File,
 			}

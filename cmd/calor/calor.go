@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"follis.net/internal/config"
+	"follis.net/internal/startup"
 	"follis.net/internal/pubsub"
 	"follis.net/internal/readings"
-	"follis.net/internal/readings/acceptors"
 	"sync"
 	"time"
 )
@@ -21,7 +21,7 @@ func main() {
 	bound := configBinder.Bind(loadedConfig)
 	// start up the pub sub channels
 	ps := pubsub.Initialize(100)
-	rwg := acceptors.StartAcceptors(bound, ps)
+	rwg := startup.StartAcceptors(bound, ps)
 	//start up the producers
 	var twg sync.WaitGroup
 	// for testing, lets publish a message. We'll move this to a ticker soon
