@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"follis.net/internal/thermometers"
 	_ "github.com/mattn/go-sqlite3"
+	"time"
 )
 
 func check(err error) {
@@ -34,6 +35,14 @@ var insertRow = `
 	values (?, ?, ?, ?, ?)
 `
 
+func prepareStatemt(db *sql.DB, statement string) (*sql.Tx, *sql.Stmt) {
+	tx, err := db.Begin()
+	check(err)
+	stmt, err := tx.Prepare(statement)
+	check(err)
+	return tx, stmt
+}
+
 func InsertReading(db *sql.DB, reading thermometers.Reading) {
 	var kelvin float64
 	switch reading.Unit {
@@ -44,11 +53,41 @@ func InsertReading(db *sql.DB, reading thermometers.Reading) {
 	case "C":
 		kelvin = reading.Temp + 273.15
 	}
-	tx, err := db.Begin()
-	check(err)
-	stmt, err := tx.Prepare(insertRow)
-	check(err)
+	tx, stmt := prepareStatemt(db, insertRow)
 	stmt.Exec(reading.Name, reading.Unit, reading.Temp, kelvin, reading.Time)
 	defer stmt.Close()
 	tx.Commit()
+}
+
+var selectLastReading = `
+	SELECT (name, unit, temperature, timestamp)  
+	FROM readings 
+	WHERE name = ? 
+	ORDER BY id
+	DESC
+	LIMIT 1
+`
+
+func LastReading(db *sql.DB, name string) thermometers.Reading {
+   tx, stmt := prepareStatemt(db, selectLastReading)
+   rows, err := stmt.Query(name)
+   var result thermometers.Reading
+   check(err)
+   defer stmt.Close()
+   defer rows.Close()
+   var thermometer, unit string
+   var temperature float64
+   var timestamp time.Time
+   for rows.Next() {  // should have only one
+   	err := rows.Scan(&thermometer, &unit, &temperature, &timestamp)
+   	check(err)
+   	result = thermometers.Reading{
+		Temp: temperature,
+		Unit: unit,
+		Name: thermometer,
+		Time: timestamp,
+	}
+   }
+   tx.Commit()
+   return result
 }
