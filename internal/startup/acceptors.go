@@ -2,6 +2,7 @@ package startup
 
 import (
 	"database/sql"
+	"fmt"
 	"follis.net/internal/config"
 	"follis.net/internal/database"
 	"follis.net/internal/pubsub"
@@ -33,6 +34,7 @@ func spawnAcceptor(ch chan interface{}, reader readings.ReadAcceptor, group * sy
 }
 
 func StartAcceptors(config config.BoundConfig, ps *pubsub.PubSub) sync.WaitGroup {
+	fmt.Println("Starting acceptors")
 	var rwg sync.WaitGroup
 	// if any of the read acceptors is sqlite, make sure the db exists
 	for _, bra := range config.ReadAcceptors {
@@ -41,6 +43,7 @@ func StartAcceptors(config config.BoundConfig, ps *pubsub.PubSub) sync.WaitGroup
 		case acceptors.SqLiteAcceptor:
 			sqla := acceptor.(acceptors.SqLiteAcceptor)
 			createDB(sqla)
+		default:
 		}
 		ch := ps.Subscribe(readings.Topic)
 		rwg.Add(1)

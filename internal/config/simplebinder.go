@@ -21,7 +21,8 @@ func (sb SimpleBinder) Bind(config LoadedConfig) BoundConfig {
 		}
 		boundTherms[index] = bound
 	}
-	for _, unboundRA := range config.ReadAcceptors {
+	boundAcceptors := make([]BoundReadAcceptor, len(config.ReadAcceptors))
+	for index, unboundRA := range config.ReadAcceptors {
 		bound := BoundReadAcceptor{
 			Name: unboundRA.Name,
 		}
@@ -34,10 +35,13 @@ func (sb SimpleBinder) Bind(config LoadedConfig) BoundConfig {
 			DBFile: config.Database.File,
 			}
 		}
+		boundAcceptors[index] = bound
+
 	}
 	return BoundConfig{
-		Thermometers: boundTherms,
-		Port:         config.Port,
-		Database:	  config.Database,
+		Thermometers:  boundTherms,
+		Port:          config.Port,
+		Database:	   config.Database,
+		ReadAcceptors: boundAcceptors,
 	}
 }

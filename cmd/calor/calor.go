@@ -3,11 +3,8 @@ package main
 import (
 	"flag"
 	"follis.net/internal/config"
-	"follis.net/internal/startup"
 	"follis.net/internal/pubsub"
-	"follis.net/internal/readings"
-	"sync"
-	"time"
+	"follis.net/internal/startup"
 )
 
 func main() {
@@ -21,25 +18,10 @@ func main() {
 	bound := configBinder.Bind(loadedConfig)
 	// start up the pub sub channels
 	ps := pubsub.Initialize(100)
+	// start our acceptors
 	rwg := startup.StartAcceptors(bound, ps)
 	//start up the producers
-	var twg sync.WaitGroup
-	// for testing, lets publish a message. We'll move this to a ticker soon
-	for _, boundTherm := range bound.Thermometers {
-		thermometer := boundTherm.Thermometer
-		ticker := time.NewTicker(time.Duration(boundTherm.UpdateInterval) * time.Second)
-		twg.Add(1)
-		go func (group *sync.WaitGroup) {
-			defer group.Done()
-			for {
-				select {
-				case <-ticker.C:
-					reading := thermometer.Read()
-					ps.Publish(readings.Topic, reading)
-				}
-			}
-		}(&twg)
-	}
+	twg := startup.StartThermometers(bound, ps)
 	rwg.Wait()
 	twg.Wait()
 
