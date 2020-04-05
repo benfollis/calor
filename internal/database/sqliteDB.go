@@ -120,7 +120,6 @@ SELECT name, unit, temperature, unixtime
 	AND unixtime >= ?
 	AND unixtime <= ?
 	ORDER BY id
-	DESC
 `
 func (sqldb SqliteDB) Between(name string, timestampRange UnixTimestampRange) ([]thermometers.Reading, error) {
 	db := sqldb.Open()
