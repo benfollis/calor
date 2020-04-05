@@ -3,7 +3,6 @@ package web
 import (
 	"encoding/json"
 	"fmt"
-	"follis.net/internal/thermometers"
 	"net/http"
 	"strings"
 )
@@ -15,17 +14,21 @@ func LatestReadingGenerator(config WebConfig) func(w http.ResponseWriter, r *htt
 		path := url.Path
 		chunks := strings.Split(path, "/")
 		// path should be of the form /latest/<thermometer name>
-		if len(chunks) != 2 {
+		if len(chunks) != 3 {
 			w.WriteHeader(400)
 		}
-		name := chunks[1]
-		reading := db.Latest(name)
-		empty := thermometers.Reading{}
-		if reading == empty {
+		name := chunks[2]
+		fmt.Println("Received request for thermometer", name)
+		reading, err := db.Latest(name)
+		if err != nil {
 			w.WriteHeader(404)
+			fmt.Fprint(w, "Not Found")
+			return
 		}
 		encoded, _ := json.Marshal(reading)
-		fmt.Fprint(w, encoded)
+		stringEncoded := string(encoded)
+		fmt.Println(stringEncoded)
+		fmt.Fprint(w, stringEncoded)
 	}
 	return handler
 }

@@ -17,10 +17,6 @@
   },
   "ReadAcceptors": [
     {
-      "Name": "ConsolePrinter",
-      "DriverType": "Console"
-    },
-    {
       "Name": "DBRecorder",
       "DriverType": "Sqlite"
     }

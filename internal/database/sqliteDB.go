@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"follis.net/internal/thermometers"
 	"follis.net/internal/utils"
 	_ "github.com/mattn/go-sqlite3"
@@ -31,7 +32,7 @@ var createTableAndIndexes = `
 		unit TEXT NOT NULL,
 		temperature REAL NOT NULL,
 		temperature_kelvin REAL NOT NULL,
-		timestamp INTEGER NOT NULL
+		unixtime INTEGER NOT NULL
 	);
 `
 
@@ -41,7 +42,7 @@ func createTable(db *sql.DB) {
 }
 
 var insertRow = `
-	INSERT INTO readings (name, unit, temperature, temperature_kelvin, timestamp)
+	INSERT INTO readings (name, unit, temperature, temperature_kelvin, unixtime)
 	values (?, ?, ?, ?, ?)
 `
 
@@ -66,13 +67,14 @@ func (sqldb SqliteDB) InsertReading(reading thermometers.Reading) {
 		kelvin = reading.Temp + 273.15
 	}
 	tx, stmt := prepareStatemt(db, insertRow)
-	stmt.Exec(reading.Name, reading.Unit, reading.Temp, kelvin, reading.Time)
+	_, err := stmt.Exec(reading.Name, reading.Unit, reading.Temp, kelvin, reading.Time.Unix())
+	utils.Check(err)
 	defer stmt.Close()
 	tx.Commit()
 }
 
 var selectLastReading = `
-	SELECT (name, unit, temperature, timestamp)  
+	SELECT name, unit, temperature, unixtime  
 	FROM readings 
 	WHERE name = ? 
 	ORDER BY id
@@ -80,7 +82,7 @@ var selectLastReading = `
 	LIMIT 1
 `
 
-func (sqldb SqliteDB) Latest(thermometer string) thermometers.Reading {
+func (sqldb SqliteDB) Latest(thermometer string) (thermometers.Reading, error) {
 	db := sqldb.Open()
 	defer db.Close()
 	tx, stmt := prepareStatemt(db, selectLastReading)
@@ -91,17 +93,19 @@ func (sqldb SqliteDB) Latest(thermometer string) thermometers.Reading {
 	defer rows.Close()
 	var name, unit string
 	var temperature float64
-	var timestamp time.Time
-	for rows.Next() { // should have only one
-		err := rows.Scan(&name, &unit, &temperature, &timestamp)
+	var unixtime int64
+	searchError := errors.New("404")
+	if rows.Next() { // should have only one
+		err := rows.Scan(&name, &unit, &temperature, &unixtime)
+		searchError = nil
 		utils.Check(err)
 		result = thermometers.Reading{
 			Temp: temperature,
 			Unit: unit,
 			Name: name,
-			Time: timestamp,
+			Time: time.Unix(unixtime, 0),
 		}
 	}
 	tx.Commit()
-	return result
+	return result, searchError
 }
