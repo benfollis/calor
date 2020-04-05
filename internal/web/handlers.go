@@ -3,11 +3,14 @@ package web
 import (
 	"encoding/json"
 	"fmt"
+	"follis.net/internal/database"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
-func LatestReadingGenerator(config WebConfig) func(w http.ResponseWriter, r *http.Request) {
+
+func LatestGenerator(config WebConfig) func(w http.ResponseWriter, r *http.Request) {
 	db := config.DB
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		url := r.URL
@@ -27,7 +30,38 @@ func LatestReadingGenerator(config WebConfig) func(w http.ResponseWriter, r *htt
 		}
 		encoded, _ := json.Marshal(reading)
 		stringEncoded := string(encoded)
-		fmt.Println(stringEncoded)
+		fmt.Fprint(w, stringEncoded)
+	}
+	return handler
+}
+
+func BetweenGenerator(config WebConfig) func(w http.ResponseWriter, r *http.Request) {
+	db := config.DB
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		url := r.URL
+		path := url.Path
+		chunks := strings.Split(path, "/")
+		// path should be of the form /between/<thermometer name>?start=<unixTime>&end=<unixTime>
+		if len(chunks) != 3 {
+			w.WriteHeader(400)
+		}
+		name := chunks[2]
+		fmt.Println("Received between request for thermometer", name)
+		query := url.Query()
+		start, _ := strconv.ParseInt(query.Get("start"), 10, 64)
+		end, _ := strconv.ParseInt(query.Get("end"), 10, 64)
+		timestampRange := database.UnixTimestampRange{
+			Begin: start,
+			End:   end,
+		}
+		readings, err := db.Between(name, timestampRange)
+		if err != nil {
+			w.WriteHeader(404)
+			fmt.Fprint(w, "Not Found")
+			return
+		}
+		encoded, _ := json.Marshal(readings)
+		stringEncoded := string(encoded)
 		fmt.Fprint(w, stringEncoded)
 	}
 	return handler

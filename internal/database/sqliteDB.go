@@ -82,30 +82,64 @@ var selectLastReading = `
 	LIMIT 1
 `
 
+func makeReading(rows *sql.Rows) thermometers.Reading {
+	var name, unit string
+	var temperature float64
+	var unixtime int64
+	err := rows.Scan(&name, &unit, &temperature, &unixtime)
+	utils.Check(err)
+	result := thermometers.Reading{
+		Temp: temperature,
+		Unit: unit,
+		Name: name,
+		Time: time.Unix(unixtime, 0),
+	}
+	return result
+}
+
 func (sqldb SqliteDB) Latest(thermometer string) (thermometers.Reading, error) {
 	db := sqldb.Open()
 	defer db.Close()
 	tx, stmt := prepareStatemt(db, selectLastReading)
 	rows, err := stmt.Query(thermometer)
-	var result thermometers.Reading
 	utils.Check(err)
 	defer stmt.Close()
 	defer rows.Close()
-	var name, unit string
-	var temperature float64
-	var unixtime int64
 	searchError := errors.New("404")
 	if rows.Next() { // should have only one
-		err := rows.Scan(&name, &unit, &temperature, &unixtime)
-		searchError = nil
-		utils.Check(err)
-		result = thermometers.Reading{
-			Temp: temperature,
-			Unit: unit,
-			Name: name,
-			Time: time.Unix(unixtime, 0),
-		}
+		return makeReading(rows), nil
 	}
 	tx.Commit()
-	return result, searchError
+	return thermometers.Reading{}, searchError
+}
+
+var selectReadingsBetween = `
+SELECT name, unit, temperature, unixtime  
+	FROM readings 
+	WHERE name = ?
+	AND unixtime >= ?
+	AND unixtime <= ?
+	ORDER BY id
+	DESC
+`
+func (sqldb SqliteDB) Between(name string, timestampRange UnixTimestampRange) ([]thermometers.Reading, error) {
+	db := sqldb.Open()
+	defer db.Close()
+	tx, stmt := prepareStatemt(db, selectReadingsBetween)
+	defer stmt.Close()
+	end := timestampRange.End
+	if end == 0 {
+		end = int64(time.Now().Unix())
+	}
+	rows, err := stmt.Query(name, timestampRange.Begin, end)
+	defer rows.Close()
+	utils.Check(err)
+	readings := make([]thermometers.Reading, 0)
+	searchError := errors.New("404")
+	for rows.Next() {
+		searchError = nil
+		readings = append(readings, makeReading(rows))
+	}
+	tx.Commit()
+	return readings, searchError
 }
