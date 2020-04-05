@@ -1,6 +1,7 @@
 package config
 
 import (
+	"follis.net/internal/database"
 	"follis.net/internal/readings"
 	"follis.net/internal/thermometers"
 )
@@ -18,7 +19,7 @@ type BoundReadAcceptor struct {
 
 type BoundConfig struct {
 	Thermometers []BoundThermometer
-	Database DatabaseConfig
+	Database database.CalorDB
 	Port int
 	ReadAcceptors []BoundReadAcceptor
 }

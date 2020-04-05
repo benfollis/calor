@@ -16,6 +16,7 @@ func main() {
 	var configBinder config.ConfigBinder
 	configBinder = config.SimpleBinder{}
 	bound := configBinder.Bind(loadedConfig)
+	bound.Database.Init() // create any DB tables needed
 	// start up the pub sub channels
 	ps := pubsub.Initialize(100)
 	// start our acceptors

@@ -1,14 +1,13 @@
 package acceptors
 
 import (
-	"database/sql"
 	"follis.net/internal/database"
 	"follis.net/internal/thermometers"
 )
 
 type SqLiteAcceptor struct {
 	MyName string
-	DBFile string
+	DB database.CalorDB
 }
 
 func (sla SqLiteAcceptor) Name() string {
@@ -16,12 +15,8 @@ func (sla SqLiteAcceptor) Name() string {
 }
 // assumes the DB tables already exist
 func (sla SqLiteAcceptor) Accept(reading thermometers.Reading) {
-	db, err := sql.Open("sqlite3", sla.DBFile)
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-	database.InsertReading(db, reading)
+	myDB := sla.DB
+	myDB.InsertReading(reading)
 }
 
 

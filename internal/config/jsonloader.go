@@ -2,23 +2,17 @@ package config
 
 import (
 	"encoding/json"
+	"follis.net/internal/utils"
 	"io/ioutil"
 )
 
-func check(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
-type JsonLoader struct {}
-
+type JsonLoader struct{}
 
 func (loader JsonLoader) Load(filepath string) LoadedConfig {
 	contents, err := ioutil.ReadFile(filepath)
-	check(err)
+	utils.Check(err)
 	var config LoadedConfig
 	parseErr := json.Unmarshal(contents, &config)
-	check(parseErr)
+	utils.Check(parseErr)
 	return config
 }

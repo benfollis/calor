@@ -1,6 +1,7 @@
 package config
 
 import (
+	"follis.net/internal/database"
 	"follis.net/internal/readings/acceptors"
 	"follis.net/internal/thermometers"
 )
@@ -17,9 +18,13 @@ func (sb SimpleBinder) Bind(config LoadedConfig) BoundConfig {
 		}
 		switch unboundTherm.DriverType {
 		case "ZeroKelvin":
-			bound.Thermometer = thermometers.ZeroKelvin{Name:unboundTherm.Name}
+			bound.Thermometer = thermometers.ZeroKelvin{Name: unboundTherm.Name}
 		}
 		boundTherms[index] = bound
+	}
+	var boundDB database.CalorDB
+	if config.Database.DriverType == "Sqlite" {
+		boundDB = database.SqliteDB{DBFile: config.Database.File}
 	}
 	boundAcceptors := make([]BoundReadAcceptor, len(config.ReadAcceptors))
 	for index, unboundRA := range config.ReadAcceptors {
@@ -31,17 +36,18 @@ func (sb SimpleBinder) Bind(config LoadedConfig) BoundConfig {
 			bound.ReadAcceptor = acceptors.ConsoleAcceptor{MyName: unboundRA.Name}
 		case "Sqlite":
 			bound.ReadAcceptor = acceptors.SqLiteAcceptor{
-			MyName:unboundRA.Name,
-			DBFile: config.Database.File,
+				MyName: unboundRA.Name,
+				DB:     boundDB,
 			}
 		}
 		boundAcceptors[index] = bound
-
 	}
-	return BoundConfig{
+	boundConfig := BoundConfig{
 		Thermometers:  boundTherms,
 		Port:          config.Port,
-		Database:	   config.Database,
 		ReadAcceptors: boundAcceptors,
+		Database:      boundDB,
 	}
+	return boundConfig
+
 }
