@@ -9,19 +9,23 @@ import (
 	"strings"
 )
 
+func respondWithData(data interface{}, w http.ResponseWriter) {
+	encoded, _ := json.Marshal(data)
+	stringEncoded := string(encoded)
+	w.WriteHeader(200)
+	fmt.Fprint(w, stringEncoded)
+}
+
 func DiscoveryGenerator(config WebConfig) func(w http.ResponseWriter, r *http.Request) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		names := make([]string, len(config.Thermometers))
 		for index, therm := range config.Thermometers {
 			names[index] = therm.Name
 		}
-		encoded, _ := json.Marshal(names)
-		stringEncoded := string(encoded)
-		fmt.Fprint(w, stringEncoded)
+		respondWithData(names, w);
 	}
 	return handler
 }
-
 
 func LatestGenerator(config WebConfig) func(w http.ResponseWriter, r *http.Request) {
 	db := config.DB
@@ -41,9 +45,7 @@ func LatestGenerator(config WebConfig) func(w http.ResponseWriter, r *http.Reque
 			fmt.Fprint(w, "Not Found")
 			return
 		}
-		encoded, _ := json.Marshal(reading)
-		stringEncoded := string(encoded)
-		fmt.Fprint(w, stringEncoded)
+		respondWithData(reading, w);
 	}
 	return handler
 }
@@ -73,9 +75,7 @@ func BetweenGenerator(config WebConfig) func(w http.ResponseWriter, r *http.Requ
 			fmt.Fprint(w, "Not Found")
 			return
 		}
-		encoded, _ := json.Marshal(readings)
-		stringEncoded := string(encoded)
-		fmt.Fprint(w, stringEncoded)
+		respondWithData(readings, w);
 	}
 	return handler
 }
