@@ -9,6 +9,19 @@ import (
 	"strings"
 )
 
+func DiscoveryGenerator(config WebConfig) func(w http.ResponseWriter, r *http.Request) {
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		names := make([]string, len(config.Thermometers))
+		for index, therm := range config.Thermometers {
+			names[index] = therm.Name
+		}
+		encoded, _ := json.Marshal(names)
+		stringEncoded := string(encoded)
+		fmt.Fprint(w, stringEncoded)
+	}
+	return handler
+}
+
 
 func LatestGenerator(config WebConfig) func(w http.ResponseWriter, r *http.Request) {
 	db := config.DB
