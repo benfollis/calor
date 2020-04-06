@@ -9,3 +9,15 @@ adding new thermometer types can be done via implementing the `thermometers.Ther
 Everything is in `/internal`, which means Calor does not currently export any packages you can use.
 When the code quality comes up a bit, and things are better documented that will change and most things
 will move to `/pkg`. Until that time, to use Calor in your own project, you'll have to fork it.
+
+
+To build and run the commands are
+```
+go build cmd/calor/calor.go
+./calor --config <Full path to your config file>
+```
+Alternately, if you have a config file in `/etc/calor/calor.json` already, then it's just
+```
+go build cmd/calor/calor.go
+./calor
+```
