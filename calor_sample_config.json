@@ -6,13 +6,16 @@
       "UpdateInterval": 1
     },
     {
-      "Name": "Test2",
-      "DriverType": "ZeroKelvin",
-      "UpdateInterval": 5
+      "Name": "OneWire",
+      "DriverType": "Raspi1Wire",
+      "UpdateInterval": 10,
+      "Options": {
+        "SensorId": "28-8000000476c9"
+      }
     }
   ],
   "Database": {
-    "DriverType" : "Sqlite",
+    "DriverType": "Sqlite",
     "File": "/home/kage/calor.db"
   },
   "ReadAcceptors": [
@@ -21,6 +24,5 @@
       "DriverType": "Sqlite"
     }
   ],
-
   "Port": 8080
 }

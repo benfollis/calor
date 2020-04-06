@@ -19,6 +19,13 @@ func (sb SimpleBinder) Bind(config LoadedConfig) BoundConfig {
 		switch unboundTherm.DriverType {
 		case "ZeroKelvin":
 			bound.Thermometer = thermometers.ZeroKelvin{Name: unboundTherm.Name}
+		case "Raspi1Wire":
+			options := unboundTherm.Options
+			sensorId := options["SensorId"]
+			bound.Thermometer = thermometers.Raspi1Wire{
+				Name:     unboundTherm.Name,
+				SensorId: sensorId,
+			}
 		}
 		boundTherms[index] = bound
 	}
