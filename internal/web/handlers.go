@@ -12,8 +12,13 @@ import (
 func respondWithData(data interface{}, w http.ResponseWriter) {
 	encoded, _ := json.Marshal(data)
 	stringEncoded := string(encoded)
-	w.WriteHeader(200)
+	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, stringEncoded)
+}
+
+func respondNotFound(w http.ResponseWriter) {
+	w.WriteHeader(404)
+	fmt.Fprint(w, "Not Found")
 }
 
 func DiscoveryGenerator(config WebConfig) func(w http.ResponseWriter, r *http.Request) {
@@ -41,8 +46,7 @@ func LatestGenerator(config WebConfig) func(w http.ResponseWriter, r *http.Reque
 		fmt.Println("Received request for thermometer", name)
 		reading, err := db.Latest(name)
 		if err != nil {
-			w.WriteHeader(404)
-			fmt.Fprint(w, "Not Found")
+			respondNotFound(w)
 			return
 		}
 		respondWithData(reading, w);
@@ -71,8 +75,7 @@ func BetweenGenerator(config WebConfig) func(w http.ResponseWriter, r *http.Requ
 		}
 		readings, err := db.Between(name, timestampRange)
 		if err != nil {
-			w.WriteHeader(404)
-			fmt.Fprint(w, "Not Found")
+			respondNotFound(w)
 			return
 		}
 		respondWithData(readings, w);
