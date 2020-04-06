@@ -31,7 +31,7 @@ func (sb SimpleBinder) Bind(config LoadedConfig) BoundConfig {
 	}
 	var boundDB database.CalorDB
 	if config.Database.DriverType == "Sqlite" {
-		boundDB = database.SqliteDB{DBFile: config.Database.File}
+		boundDB = database.CreateSqliteDB(config.Database.File)
 	}
 	boundAcceptors := make([]BoundReadAcceptor, len(config.ReadAcceptors))
 	for index, unboundRA := range config.ReadAcceptors {

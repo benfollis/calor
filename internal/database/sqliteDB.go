@@ -11,18 +11,25 @@ import (
 
 type SqliteDB struct {
 	DBFile string
+	database *sql.DB
 }
 
-func (sqlite SqliteDB) Open() *sql.DB {
-	db, err := sql.Open("sqlite3", sqlite.DBFile)
+func CreateSqliteDB(file string) SqliteDB{
+	db, err := sql.Open("sqlite3", file)
 	utils.Check(err)
-	return db
+	sqlite := SqliteDB{
+		DBFile:   file,
+		database: db,
+	}
+	return sqlite
+}
+
+func (sqlite SqliteDB) DB() *sql.DB {
+	return sqlite.database
 }
 
 func (sqlite SqliteDB) Init() {
-	db := sqlite.Open()
-	defer db.Close()
-	createTable(db)
+	createTable(sqlite.DB())
 }
 
 var createTableAndIndexes = `
@@ -55,8 +62,7 @@ func prepareStatemt(db *sql.DB, statement string) (*sql.Tx, *sql.Stmt) {
 }
 
 func (sqldb SqliteDB) InsertReading(reading thermometers.Reading) {
-	db := sqldb.Open()
-	defer db.Close()
+	db := sqldb.DB()
 	var kelvin float64
 	switch reading.Unit {
 	case "K":
@@ -98,8 +104,7 @@ func makeReading(rows *sql.Rows) thermometers.Reading {
 }
 
 func (sqldb SqliteDB) Latest(thermometer string) (thermometers.Reading, error) {
-	db := sqldb.Open()
-	defer db.Close()
+	db := sqldb.DB()
 	tx, stmt := prepareStatemt(db, selectLastReading)
 	rows, err := stmt.Query(thermometer)
 	utils.Check(err)
@@ -122,8 +127,7 @@ SELECT name, unit, temperature, unixtime
 	ORDER BY id
 `
 func (sqldb SqliteDB) Between(name string, timestampRange UnixTimestampRange) ([]thermometers.Reading, error) {
-	db := sqldb.Open()
-	defer db.Close()
+	db := sqldb.DB()
 	tx, stmt := prepareStatemt(db, selectReadingsBetween)
 	defer stmt.Close()
 	end := timestampRange.End

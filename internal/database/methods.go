@@ -6,7 +6,7 @@ import (
 )
 
 type CalorDB interface {
-	Open() *sql.DB
+	DB() *sql.DB
 	Init()
 	Latest(thermometer string) (thermometers.Reading, error)
 	InsertReading(reading thermometers.Reading)
