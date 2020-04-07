@@ -13,6 +13,8 @@ func respondWithData(data interface{}, w http.ResponseWriter) {
 	encoded, _ := json.Marshal(data)
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Length", strconv.Itoa(len(encoded)))
+	// make cors happy on the browsers
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Write(encoded)
 }
 
