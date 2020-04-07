@@ -13,6 +13,7 @@ func respondWithData(data interface{}, w http.ResponseWriter) {
 	encoded, _ := json.Marshal(data)
 	stringEncoded := string(encoded)
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Length", strconv.Itoa(len(encoded)))
 	fmt.Fprint(w, stringEncoded)
 }
 

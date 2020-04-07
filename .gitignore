@@ -17,3 +17,6 @@
 
 # a real config file in the source directory
 calor_config.json
+
+#the built executable
+calor
