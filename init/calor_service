@@ -1,0 +1,15 @@
+[Unit]
+Description=calor thermometer service
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/var/thermopylae_rest
+# Fix the paths below:
+ExecStart=/usr/local/go/bin/calor
+Restart=on-failure
+User=calor
+
+[Install]
+WantedBy=multi-user.target
