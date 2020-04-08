@@ -31,3 +31,6 @@ which writes them to the Sqlite DB configured in the database section
 1. `Thermometers` A JSON array of thermometer configurations. See the sample_calor_config.json for some example
 types. The `UpdateInterval` option is an integer and is the number of seconds you want a reading taken from that thermometer.
 1. `Port` this is the port you want the web server to run on. It does not support HTTPS
+
+# Init scripts
+A basic script for systemd is contained in `init`
