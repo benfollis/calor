@@ -5,9 +5,9 @@ Wants=network.target
 
 [Service]
 Type=simple
-WorkingDirectory=/var/thermopylae_rest
+WorkingDirectory=/var/calor
 # Fix the paths below:
-ExecStart=/usr/local/go/bin/calor
+ExecStart=/usr/local/bin/calor
 Restart=on-failure
 User=calor
 
