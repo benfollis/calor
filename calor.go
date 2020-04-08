@@ -2,10 +2,10 @@ package main
 
 import (
 	"flag"
-	"follis.net/internal/config"
-	"follis.net/internal/pubsub"
-	"follis.net/internal/startup"
-	"follis.net/internal/web"
+	"calor/internal/config"
+	"calor/internal/pubsub"
+	"calor/internal/startup"
+	"calor/internal/web"
 )
 
 func main() {

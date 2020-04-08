@@ -1,9 +1,9 @@
 package config
 
 import (
-	"follis.net/internal/database"
-	"follis.net/internal/readings"
-	"follis.net/internal/thermometers"
+	"calor/internal/database"
+	"calor/internal/readings"
+	"calor/internal/thermometers"
 )
 
 type BoundThermometer struct {

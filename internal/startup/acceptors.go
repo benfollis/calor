@@ -2,10 +2,10 @@ package startup
 
 import (
 	"fmt"
-	"follis.net/internal/config"
-	"follis.net/internal/pubsub"
-	"follis.net/internal/readings"
-	"follis.net/internal/thermometers"
+	"calor/internal/config"
+	"calor/internal/pubsub"
+	"calor/internal/readings"
+	"calor/internal/thermometers"
 	_ "github.com/mattn/go-sqlite3"
 	"sync"
 )

@@ -1,7 +1,7 @@
 package readings
 
 import (
-	"follis.net/internal/thermometers"
+	"calor/internal/thermometers"
 )
 
 type ReadAcceptor interface {

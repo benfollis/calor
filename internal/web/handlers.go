@@ -3,7 +3,7 @@ package web
 import (
 	"encoding/json"
 	"fmt"
-	"follis.net/internal/database"
+	"calor/internal/database"
 	"net/http"
 	"strconv"
 	"strings"

@@ -2,9 +2,9 @@ package web
 
 import (
 	"fmt"
-	"follis.net/internal/config"
-	"follis.net/internal/database"
-	"follis.net/internal/utils"
+	"calor/internal/config"
+	"calor/internal/database"
+	"calor/internal/utils"
 	"net/http"
 	"strconv"
 )

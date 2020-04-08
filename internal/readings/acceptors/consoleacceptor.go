@@ -2,7 +2,7 @@ package acceptors
 
 import (
 	"fmt"
-	"follis.net/internal/thermometers"
+	"calor/internal/thermometers"
 )
 
 type ConsoleAcceptor struct {

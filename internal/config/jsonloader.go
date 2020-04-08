@@ -2,7 +2,7 @@ package config
 
 import (
 	"encoding/json"
-	"follis.net/internal/utils"
+	"calor/internal/utils"
 	"io/ioutil"
 )
 

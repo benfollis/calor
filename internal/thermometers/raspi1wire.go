@@ -1,7 +1,7 @@
 package thermometers
 
 import (
-	"follis.net/internal/utils"
+	"calor/internal/utils"
 	"github.com/yryz/ds18b20"
 	"time"
 )

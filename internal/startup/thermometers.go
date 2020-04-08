@@ -1,9 +1,9 @@
 package startup
 
 import (
-	"follis.net/internal/config"
-	"follis.net/internal/pubsub"
-	"follis.net/internal/readings"
+	"calor/internal/config"
+	"calor/internal/pubsub"
+	"calor/internal/readings"
 	"sync"
 	"time"
 )

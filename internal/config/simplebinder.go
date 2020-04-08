@@ -1,9 +1,9 @@
 package config
 
 import (
-	"follis.net/internal/database"
-	"follis.net/internal/readings/acceptors"
-	"follis.net/internal/thermometers"
+	"calor/internal/database"
+	"calor/internal/readings/acceptors"
+	"calor/internal/thermometers"
 )
 
 type SimpleBinder struct{}

@@ -1,8 +1,8 @@
 package acceptors
 
 import (
-	"follis.net/internal/database"
-	"follis.net/internal/thermometers"
+	"calor/internal/database"
+	"calor/internal/thermometers"
 )
 
 type SqLiteAcceptor struct {

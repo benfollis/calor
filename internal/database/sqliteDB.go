@@ -3,8 +3,8 @@ package database
 import (
 	"database/sql"
 	"errors"
-	"follis.net/internal/thermometers"
-	"follis.net/internal/utils"
+	"calor/internal/thermometers"
+	"calor/internal/utils"
 	_ "github.com/mattn/go-sqlite3"
 	"time"
 )

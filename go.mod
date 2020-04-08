@@ -1,4 +1,4 @@
-module follis.net
+module calor
 
 go 1.14
 

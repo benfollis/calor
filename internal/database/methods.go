@@ -2,7 +2,7 @@ package database
 
 import (
 	"database/sql"
-	"follis.net/internal/thermometers"
+	"calor/internal/thermometers"
 )
 
 type CalorDB interface {
