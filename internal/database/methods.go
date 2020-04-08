@@ -2,7 +2,7 @@ package database
 
 import (
 	"database/sql"
-	"calor/internal/thermometers"
+	"github.com/benfollis/calor/internal/thermometers"
 )
 
 type CalorDB interface {
