@@ -1,8 +1,8 @@
 package acceptors
 
 import (
-	"calor/internal/database"
-	"calor/internal/thermometers"
+	"github.com/benfollis/calor/internal/database"
+	"github.com/benfollis/calor/internal/thermometers"
 )
 
 type SqLiteAcceptor struct {

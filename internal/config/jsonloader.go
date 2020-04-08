@@ -2,7 +2,7 @@ package config
 
 import (
 	"encoding/json"
-	"calor/internal/utils"
+	"github.com/benfollis/calor/internal/utils"
 	"io/ioutil"
 )
 

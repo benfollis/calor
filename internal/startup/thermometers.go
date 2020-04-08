@@ -1,9 +1,9 @@
 package startup
 
 import (
-	"calor/internal/config"
-	"calor/internal/pubsub"
-	"calor/internal/readings"
+	"github.com/benfollis/calor/internal/config"
+	"github.com/benfollis/calor/internal/pubsub"
+	"github.com/benfollis/calor/internal/readings"
 	"sync"
 	"time"
 )

@@ -3,7 +3,7 @@ package web
 import (
 	"encoding/json"
 	"fmt"
-	"calor/internal/database"
+	"github.com/benfollis/calor/internal/database"
 	"net/http"
 	"strconv"
 	"strings"

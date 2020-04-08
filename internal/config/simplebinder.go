@@ -1,9 +1,9 @@
 package config
 
 import (
-	"calor/internal/database"
-	"calor/internal/readings/acceptors"
-	"calor/internal/thermometers"
+	"github.com/benfollis/calor/internal/database"
+	"github.com/benfollis/calor/internal/readings/acceptors"
+	"github.com/benfollis/calor/internal/thermometers"
 )
 
 type SimpleBinder struct{}

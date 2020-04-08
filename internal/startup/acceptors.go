@@ -2,10 +2,10 @@ package startup
 
 import (
 	"fmt"
-	"calor/internal/config"
-	"calor/internal/pubsub"
-	"calor/internal/readings"
-	"calor/internal/thermometers"
+	"github.com/benfollis/calor/internal/config"
+	"github.com/benfollis/calor/internal/pubsub"
+	"github.com/benfollis/calor/internal/readings"
+	"github.com/benfollis/calor/internal/thermometers"
 	_ "github.com/mattn/go-sqlite3"
 	"sync"
 )

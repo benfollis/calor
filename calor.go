@@ -2,10 +2,10 @@ package main
 
 import (
 	"flag"
-	"calor/internal/config"
-	"calor/internal/pubsub"
-	"calor/internal/startup"
-	"calor/internal/web"
+	"github.com/benfollis/calor/internal/config"
+	"github.com/benfollis/calor/internal/pubsub"
+	"github.com/benfollis/calor/internal/startup"
+	"github.com/benfollis/calor/internal/web"
 )
 
 func main() {

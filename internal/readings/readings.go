@@ -1,7 +1,7 @@
 package readings
 
 import (
-	"calor/internal/thermometers"
+	"github.com/benfollis/calor/internal/thermometers"
 )
 
 type ReadAcceptor interface {

@@ -1,7 +1,7 @@
 package thermometers
 
 import (
-	"calor/internal/utils"
+	"github.com/benfollis/calor/internal/utils"
 	"github.com/yryz/ds18b20"
 	"time"
 )

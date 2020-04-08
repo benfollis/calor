@@ -2,9 +2,9 @@ package web
 
 import (
 	"fmt"
-	"calor/internal/config"
-	"calor/internal/database"
-	"calor/internal/utils"
+	"github.com/benfollis/calor/internal/config"
+	"github.com/benfollis/calor/internal/database"
+	"github.com/benfollis/calor/internal/utils"
 	"net/http"
 	"strconv"
 )

@@ -1,9 +1,9 @@
 package config
 
 import (
-	"calor/internal/database"
-	"calor/internal/readings"
-	"calor/internal/thermometers"
+	"github.com/benfollis/calor/internal/database"
+	"github.com/benfollis/calor/internal/readings"
+	"github.com/benfollis/calor/internal/thermometers"
 )
 
 type BoundThermometer struct {

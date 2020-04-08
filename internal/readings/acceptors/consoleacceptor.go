@@ -2,7 +2,7 @@ package acceptors
 
 import (
 	"fmt"
-	"calor/internal/thermometers"
+	"github.com/benfollis/calor/internal/thermometers"
 )
 
 type ConsoleAcceptor struct {
