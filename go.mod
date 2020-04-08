@@ -1,4 +1,4 @@
-module calor
+module github.com/bfollis/calor
 
 go 1.14
 
