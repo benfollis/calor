@@ -22,9 +22,11 @@ func main() {
 	// start up the pub sub channels
 	ps := pubsub.Initialize(100)
 	// start our acceptors
-	startup.StartAcceptors(bound, ps)
+	rwg := startup.StartAcceptors(bound, ps)
 	//start up the producers
-	startup.StartThermometers(bound, ps)
+	twg := startup.StartThermometers(bound, ps)
 	web.Init(bound)
+	rwg.Wait()
+	twg.Wait()
 
 }
