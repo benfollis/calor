@@ -6,13 +6,14 @@ import (
 	"io/ioutil"
 )
 
+// A config loader that reads from a JSON file
 type JsonLoader struct{}
 
 func (loader JsonLoader) Load(filepath string) LoadedConfig {
 	contents, err := ioutil.ReadFile(filepath)
-	utils.Check(err)
+	utils.CheckPanic(err)
 	var config LoadedConfig
 	parseErr := json.Unmarshal(contents, &config)
-	utils.Check(parseErr)
+	utils.CheckLog(parseErr)
 	return config
 }

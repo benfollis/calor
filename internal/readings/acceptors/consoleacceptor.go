@@ -5,6 +5,7 @@ import (
 	"github.com/benfollis/calor/internal/thermometers"
 )
 
+// A ConsoleAcceptor just emits the reading to STDOUT
 type ConsoleAcceptor struct {
 	MyName string
 }

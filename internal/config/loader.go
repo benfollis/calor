@@ -1,10 +1,14 @@
 package config
 
-
+// A ConfigLoader takes a config file and produces a LoadedConfig
+// Currently we just have the json loader
 type ConfigLoader interface {
 	Load(filepath string) LoadedConfig
 }
 
+// A ThermometerConfig is the basic config for a thermometer
+// The options map exist to allow key/value pairs that are specific to a
+// particular driver type
 type ThermometerConfig struct {
 	Name string
 	DriverType string
@@ -12,6 +16,7 @@ type ThermometerConfig struct {
 	Options map[string] string
 }
 
+// A DabaaseConfig contains all config needed to describe a DB connection
 type DatabaseConfig struct {
 	DriverType string
 	File string
@@ -21,11 +26,15 @@ type DatabaseConfig struct {
 	Password string
 }
 
+// A ReadAcceptor contains all config needed to construct a particular type of
+// read acceptor
 type ReadAcceptor struct {
 	Name string
 	DriverType string
 }
 
+// A LoadedConfig is a struct declaring what we want,
+// but does not actually contain any valid calor types
 type LoadedConfig struct {
 	Thermometers []ThermometerConfig
 	Database DatabaseConfig

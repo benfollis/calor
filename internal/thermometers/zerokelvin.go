@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+// A ZeroKelvin thermometer is a Dummy Thermometer that
+// always reports 0K
 type ZeroKelvin struct {
 	Name string
 }

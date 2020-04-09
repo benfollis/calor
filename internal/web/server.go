@@ -28,5 +28,5 @@ func Init(config config.BoundConfig) {
 	fmt.Println("Starting web server on port", config.Port)
 	addr := ":" + strconv.Itoa(config.Port)
 	err := http.ListenAndServe(addr, nil)
-	utils.Check(err)
+	utils.CheckLog(err)
 }

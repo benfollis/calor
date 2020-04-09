@@ -21,7 +21,7 @@
   "ReadAcceptors": [
     {
       "Name": "DBRecorder",
-      "DriverType": "Sqlite"
+      "DriverType": "DB"
     }
   ],
   "Port": 8080

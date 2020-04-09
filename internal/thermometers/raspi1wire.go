@@ -6,7 +6,8 @@ import (
 	"time"
 )
 
-
+// A Raspi1Wire is a thermometer that takes it's readings from a
+// Linux kernel 1 wire therm interface thermometer
 type Raspi1Wire struct{
 	Name string
 	SensorId string
@@ -14,7 +15,7 @@ type Raspi1Wire struct{
 
 func (rw1 Raspi1Wire) Read() Reading{
 	temp, err := ds18b20.Temperature(rw1.SensorId)
-	utils.Check(err)
+	utils.CheckLog(err)
 	reading := Reading{
 		Temp: temp,
 		Unit: "C",

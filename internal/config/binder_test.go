@@ -7,7 +7,7 @@ import (
 )
 
 func TestSimpleBinder_BindPort(t *testing.T) {
-	cb := SimpleBinder{}
+	cb := LoadedConfigBinder{}
 	unbound := LoadedConfig{Port:9090}
 	bound := cb.Bind(unbound)
 	if (bound.Port != 9090) {
@@ -16,7 +16,7 @@ func TestSimpleBinder_BindPort(t *testing.T) {
 }
 
 func TestSimpleBinder_BindConsoleAc(t *testing.T) {
-	cb := SimpleBinder{}
+	cb := LoadedConfigBinder{}
 	unbound := LoadedConfig{ReadAcceptors: []ReadAcceptor{{
 		Name:       "Bar",
 		DriverType: "Console",
@@ -35,7 +35,7 @@ func TestSimpleBinder_BindConsoleAc(t *testing.T) {
 }
 
 func TestSimpleBinder_BindZeroK(t *testing.T) {
-	cb := SimpleBinder{}
+	cb := LoadedConfigBinder{}
 	unbound := LoadedConfig{Thermometers: []ThermometerConfig{{
 		Name:           "Cod",
 		DriverType:     "ZeroKelvin",

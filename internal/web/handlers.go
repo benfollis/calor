@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// A handy function to convert data to json and respond with it
 func respondWithData(data interface{}, w http.ResponseWriter) {
 	encoded, _ := json.Marshal(data)
 	w.Header().Set("Content-Type", "application/json")
@@ -18,6 +19,7 @@ func respondWithData(data interface{}, w http.ResponseWriter) {
 	w.Write(encoded)
 }
 
+// A convenient function to respond with 404
 func respondNotFound(w http.ResponseWriter) {
 	w.WriteHeader(404)
 	fmt.Fprint(w, "Not Found")
@@ -56,6 +58,7 @@ func LatestGenerator(config WebConfig) func(w http.ResponseWriter, r *http.Reque
 	return handler
 }
 
+// BetweenGenerator generates a HandlerFunc to respond to between calls
 func BetweenGenerator(config WebConfig) func(w http.ResponseWriter, r *http.Request) {
 	db := config.DB
 	handler := func(w http.ResponseWriter, r *http.Request) {

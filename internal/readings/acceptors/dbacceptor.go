@@ -5,17 +5,18 @@ import (
 	"github.com/benfollis/calor/internal/thermometers"
 )
 
-type SqLiteAcceptor struct {
+// A DBAcceptor emits the readings to a CalorDB
+type DBAcceptor struct {
 	MyName string
 	DB database.CalorDB
 }
 
-func (sla SqLiteAcceptor) Name() string {
-	return sla.MyName
+func (dba DBAcceptor) Name() string {
+	return dba.MyName
 }
 // assumes the DB tables already exist
-func (sla SqLiteAcceptor) Accept(reading thermometers.Reading) {
-	myDB := sla.DB
+func (dba DBAcceptor) Accept(reading thermometers.Reading) {
+	myDB := dba.DB
 	myDB.InsertReading(reading)
 }
 

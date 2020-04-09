@@ -6,9 +6,11 @@ import (
 	"github.com/benfollis/calor/internal/thermometers"
 )
 
-type SimpleBinder struct{}
+// A LoadedConfig bnder accepts a LoadedConfig
+// and produces a Bound Config from it.
+type LoadedConfigBinder struct{}
 
-func (sb SimpleBinder) Bind(config LoadedConfig) BoundConfig {
+func (sb LoadedConfigBinder) Bind(config LoadedConfig) BoundConfig {
 	numTherms := len(config.Thermometers)
 	boundTherms := make([]BoundThermometer, numTherms)
 	for index, unboundTherm := range config.Thermometers {
@@ -41,8 +43,8 @@ func (sb SimpleBinder) Bind(config LoadedConfig) BoundConfig {
 		switch unboundRA.DriverType {
 		case "Console":
 			bound.ReadAcceptor = acceptors.ConsoleAcceptor{MyName: unboundRA.Name}
-		case "Sqlite":
-			bound.ReadAcceptor = acceptors.SqLiteAcceptor{
+		case "DB":
+			bound.ReadAcceptor = acceptors.DBAcceptor{
 				MyName: unboundRA.Name,
 				DB:     boundDB,
 			}

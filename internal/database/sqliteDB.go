@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// A SqliteDB is a CalorDB that is backed by a SqliteDB file
 type SqliteDB struct {
 	DBFile string
 	database *sql.DB
@@ -16,7 +17,7 @@ type SqliteDB struct {
 
 func CreateSqliteDB(file string) SqliteDB{
 	db, err := sql.Open("sqlite3", file)
-	utils.Check(err)
+	utils.CheckPanic(err)
 	sqlite := SqliteDB{
 		DBFile:   file,
 		database: db,
@@ -45,7 +46,7 @@ var createTableAndIndexes = `
 
 func createTable(db *sql.DB) {
 	_, err := db.Exec(createTableAndIndexes)
-	utils.Check(err)
+	utils.CheckLog(err)
 }
 
 var insertRow = `
@@ -55,9 +56,9 @@ var insertRow = `
 
 func prepareStatemt(db *sql.DB, statement string) (*sql.Tx, *sql.Stmt) {
 	tx, err := db.Begin()
-	utils.Check(err)
+	utils.CheckLog(err)
 	stmt, err := tx.Prepare(statement)
-	utils.Check(err)
+	utils.CheckLog(err)
 	return tx, stmt
 }
 
@@ -74,7 +75,7 @@ func (sqldb SqliteDB) InsertReading(reading thermometers.Reading) {
 	}
 	tx, stmt := prepareStatemt(db, insertRow)
 	_, err := stmt.Exec(reading.Name, reading.Unit, reading.Temp, kelvin, reading.Time.Unix())
-	utils.Check(err)
+	utils.CheckLog(err)
 	defer stmt.Close()
 	tx.Commit()
 }
@@ -93,7 +94,7 @@ func makeReading(rows *sql.Rows) thermometers.Reading {
 	var temperature float64
 	var unixtime int64
 	err := rows.Scan(&name, &unit, &temperature, &unixtime)
-	utils.Check(err)
+	utils.CheckLog(err)
 	result := thermometers.Reading{
 		Temp: temperature,
 		Unit: unit,
@@ -107,7 +108,7 @@ func (sqldb SqliteDB) Latest(thermometer string) (thermometers.Reading, error) {
 	db := sqldb.DB()
 	tx, stmt := prepareStatemt(db, selectLastReading)
 	rows, err := stmt.Query(thermometer)
-	utils.Check(err)
+	utils.CheckLog(err)
 	defer stmt.Close()
 	defer rows.Close()
 	searchError := errors.New("404")
@@ -136,7 +137,7 @@ func (sqldb SqliteDB) Between(name string, timestampRange UnixTimestampRange) ([
 	}
 	rows, err := stmt.Query(name, timestampRange.Begin, end)
 	defer rows.Close()
-	utils.Check(err)
+	utils.CheckLog(err)
 	readings := make([]thermometers.Reading, 0)
 	searchError := errors.New("404")
 	for rows.Next() {

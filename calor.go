@@ -15,7 +15,7 @@ func main() {
 	configLoader = config.JsonLoader{}
 	loadedConfig := configLoader.Load(*pathFlag)
 	var configBinder config.ConfigBinder
-	configBinder = config.SimpleBinder{}
+	configBinder = config.LoadedConfigBinder{}
 	bound := configBinder.Bind(loadedConfig)
 	bound.Database.Init() // create any DB tables needed
 	// fire up our web server
