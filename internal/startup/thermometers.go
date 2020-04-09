@@ -4,18 +4,14 @@ import (
 	"github.com/benfollis/calor/internal/config"
 	"github.com/benfollis/calor/internal/pubsub"
 	"github.com/benfollis/calor/internal/readings"
-	"sync"
 	"time"
 )
 
-func StartThermometers(config config.BoundConfig, ps *pubsub.PubSub) sync.WaitGroup {
-	var twg sync.WaitGroup
+func StartThermometers(config config.BoundConfig, ps *pubsub.PubSub){
 	for _, boundTherm := range config.Thermometers {
 		thermometer := boundTherm.Thermometer
 		ticker := time.NewTicker(time.Duration(boundTherm.UpdateInterval) * time.Second)
-		twg.Add(1)
-		go func (group *sync.WaitGroup) {
-			defer group.Done()
+		go func () {
 			for {
 				select {
 				case <-ticker.C:
@@ -23,7 +19,6 @@ func StartThermometers(config config.BoundConfig, ps *pubsub.PubSub) sync.WaitGr
 					ps.Publish(readings.Topic, reading)
 				}
 			}
-		}(&twg)
+		}()
 	}
-	return twg
 }

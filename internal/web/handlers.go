@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// A handy function to convert data to json and respond with it
+// A handy function to convert data to json and respond with itg
 func respondWithData(data interface{}, w http.ResponseWriter) {
 	encoded, _ := json.Marshal(data)
 	w.Header().Set("Content-Type", "application/json")
