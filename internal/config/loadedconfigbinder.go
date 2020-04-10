@@ -32,8 +32,11 @@ func (sb LoadedConfigBinder) Bind(config LoadedConfig) BoundConfig {
 		boundTherms[index] = bound
 	}
 	var boundDB database.CalorDB
-	if config.Database.DriverType == "Sqlite" {
+	switch config.Database.DriverType {
+	case "Sqlite":
 		boundDB = database.CreateSqliteDB(config.Database.File)
+	case "Postgres":
+		boundDB = database.CreatePostgresDB(config.Database.Username, config.Database.Password, config.Database.Host)
 	}
 	boundAcceptors := make([]BoundReadAcceptor, len(config.ReadAcceptors))
 	for index, unboundRA := range config.ReadAcceptors {

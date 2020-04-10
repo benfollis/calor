@@ -14,6 +14,6 @@ func CheckPanic(err error) {
 // and if not logs a fatal error
 func CheckLog(err error) {
 	if err != nil {
-		log.Fatal(err);
+		log.Println(err);
 	}
 }

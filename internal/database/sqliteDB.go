@@ -11,7 +11,6 @@ import (
 
 // A SqliteDB is a CalorDB that is backed by a SqliteDB file
 type SqliteDB struct {
-	DBFile string
 	database *sql.DB
 }
 
@@ -19,7 +18,6 @@ func CreateSqliteDB(file string) SqliteDB{
 	db, err := sql.Open("sqlite3", file)
 	utils.CheckPanic(err)
 	sqlite := SqliteDB{
-		DBFile:   file,
 		database: db,
 	}
 	return sqlite
@@ -27,10 +25,6 @@ func CreateSqliteDB(file string) SqliteDB{
 
 func (sqlite SqliteDB) DB() *sql.DB {
 	return sqlite.database
-}
-
-func (sqlite SqliteDB) Init() {
-	createTable(sqlite.DB())
 }
 
 var createTableAndIndexes = `
@@ -44,26 +38,18 @@ var createTableAndIndexes = `
 	);
 `
 
-func createTable(db *sql.DB) {
-	_, err := db.Exec(createTableAndIndexes)
-	utils.CheckLog(err)
+func (sqlite SqliteDB) Init() {
+	CreateTable(sqlite.DB(), createTableAndIndexes)
 }
+
 
 var insertRow = `
 	INSERT INTO readings (name, unit, temperature, temperature_kelvin, unixtime)
 	values (?, ?, ?, ?, ?)
 `
 
-func prepareStatemt(db *sql.DB, statement string) (*sql.Tx, *sql.Stmt) {
-	tx, err := db.Begin()
-	utils.CheckLog(err)
-	stmt, err := tx.Prepare(statement)
-	utils.CheckLog(err)
-	return tx, stmt
-}
-
 func (sqldb SqliteDB) InsertReading(reading thermometers.Reading) {
-	db := sqldb.DB()
+	db := sqldb.database
 	var kelvin float64
 	switch reading.Unit {
 	case "K":
@@ -73,14 +59,14 @@ func (sqldb SqliteDB) InsertReading(reading thermometers.Reading) {
 	case "C":
 		kelvin = reading.Temp + 273.15
 	}
-	tx, stmt := prepareStatemt(db, insertRow)
+	tx, stmt := PrepareStatement(db, insertRow)
 	_, err := stmt.Exec(reading.Name, reading.Unit, reading.Temp, kelvin, reading.Time.Unix())
 	utils.CheckLog(err)
 	defer stmt.Close()
 	tx.Commit()
 }
 
-var selectLastReading = `
+const sqliteLastReading = `
 	SELECT name, unit, temperature, unixtime  
 	FROM readings 
 	WHERE name = ? 
@@ -89,7 +75,7 @@ var selectLastReading = `
 	LIMIT 1
 `
 
-func makeReading(rows *sql.Rows) thermometers.Reading {
+func sqliteMakeReading(rows *sql.Rows) thermometers.Reading {
 	var name, unit string
 	var temperature float64
 	var unixtime int64
@@ -105,21 +91,10 @@ func makeReading(rows *sql.Rows) thermometers.Reading {
 }
 
 func (sqldb SqliteDB) Latest(thermometer string) (thermometers.Reading, error) {
-	db := sqldb.DB()
-	tx, stmt := prepareStatemt(db, selectLastReading)
-	rows, err := stmt.Query(thermometer)
-	utils.CheckLog(err)
-	defer stmt.Close()
-	defer rows.Close()
-	searchError := errors.New("404")
-	if rows.Next() { // should have only one
-		return makeReading(rows), nil
-	}
-	tx.Commit()
-	return thermometers.Reading{}, searchError
+	return FetchLatest(sqldb.database, sqliteLastReading, thermometer, sqliteMakeReading)
 }
 
-var selectReadingsBetween = `
+const sqliteReadingsBetween = `
 SELECT name, unit, temperature, unixtime  
 	FROM readings 
 	WHERE name = ?
@@ -129,7 +104,7 @@ SELECT name, unit, temperature, unixtime
 `
 func (sqldb SqliteDB) Between(name string, timestampRange UnixTimestampRange) ([]thermometers.Reading, error) {
 	db := sqldb.DB()
-	tx, stmt := prepareStatemt(db, selectReadingsBetween)
+	tx, stmt := PrepareStatement(db, sqliteReadingsBetween)
 	defer stmt.Close()
 	end := timestampRange.End
 	if end == 0 {
@@ -142,7 +117,7 @@ func (sqldb SqliteDB) Between(name string, timestampRange UnixTimestampRange) ([
 	searchError := errors.New("404")
 	for rows.Next() {
 		searchError = nil
-		readings = append(readings, makeReading(rows))
+		readings = append(readings, sqliteMakeReading(rows))
 	}
 	tx.Commit()
 	return readings, searchError
