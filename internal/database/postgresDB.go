@@ -55,11 +55,10 @@ func (psql PostgresDB) InsertReading(reading thermometers.Reading) {
 }
 
 const postgresLatest = `
-	SELECT name, temperature, unit, time
+	SELECT name, temperature, unit, date
 	FROM readings
 	WHERE name = $1
-	ORDER_BY id
-	DESC
+	ORDER BY id DESC
 	LIMIT 1
 `
 
@@ -67,7 +66,7 @@ func postgresMakeReading(rows *sql.Rows) thermometers.Reading {
 	var name, unit string
 	var temp float64
 	var readingTime time.Time
-	err := rows.Scan(&name, &unit, &temp, &readingTime)
+	err := rows.Scan(&name, &temp, &unit, &readingTime)
 	utils.CheckLog(err)
 	return thermometers.Reading{
 		Temp: temp,
