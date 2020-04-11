@@ -16,7 +16,7 @@
   ],
   "Database": {
     "DriverType": "Sqlite",
-    "File": "/home/kage/calor.db"
+    "File": "/home/calor/calor.db"
   },
   "ReadAcceptors": [
     {

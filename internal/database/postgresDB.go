@@ -43,21 +43,21 @@ func (psql PostgresDB) Init() {
 }
 
 const postgresInsertReading = `
-	INSERT INTO readings(name, temperature, unit, date) VALUES (?, ?, ?, ?);
+INSERT INTO readings(name, temperature, unit, date) VALUES ($1, $2, $3, $4)
 `
 
 func (psql PostgresDB) InsertReading(reading thermometers.Reading) {
-	db := psql.database;
+	db := psql.database
 	tx, stmt := PrepareStatement(db, postgresInsertReading)
-	defer stmt.Close();
-	stmt.Exec(reading.Name, reading.Temp, reading.Unit, reading.Time.);
+	defer stmt.Close()
+	stmt.Exec(reading.Name, reading.Temp, reading.Unit, reading.Time)
 	tx.Commit()
 }
 
 const postgresLatest = `
 	SELECT name, temperature, unit, time
 	FROM readings
-	WHERE name = ?
+	WHERE name = $1
 	ORDER_BY id
 	DESC
 	LIMIT 1
@@ -85,16 +85,16 @@ func (psql PostgresDB) Latest(thermometer string) (thermometers.Reading, error) 
 const postgresReadingsBetween = `
 	SELECT name, unit, temperature, date  
 	FROM readings 
-	WHERE name = ?
-	AND date >= ?
-	AND date <= ?
+	WHERE name = $1
+	AND date >= $2
+	AND date <= $3
 	ORDER BY id
 `
 // ALL of the DBS will share a similar between, but they'll differ in how they
 // process dates because they'll represent dates differently
 func (psql PostgresDB) Between(name string, timestampRange UnixTimestampRange) ([]thermometers.Reading, error) {
 	db := psql.database
-	tx, stmt := PrepareStatement(db, sqliteReadingsBetween)
+	tx, stmt := PrepareStatement(db, postgresReadingsBetween)
 	defer stmt.Close()
 	end := timestampRange.End
 	if end == 0 {

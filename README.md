@@ -24,7 +24,23 @@ go build cmd/calor/calor.go
 
 The config file calor is a JSON document with 4 keys
 1. `Database` The description of your database configuration, which is used to store the readings from the thermometers.
-Currently only SQLite is supported. See the sample config for more details.
+PostgreSQL and Sqlite are supported.
+A Postgres config looks like:
+```json
+  "Database": {
+    "DriverType": "Postgres",
+    "Host": "Localhost",
+    "Username": "postgres",
+    "Password": "postgres"
+  },
+```
+While a Sqlite connection looks like:
+```json
+  "Database": {
+    "DriverType": "Sqlite",
+    "File": "/home/calor/calor.db"
+  },
+```
 1. `ReadAcceptors` A JSON array of Read Acceptors. Read Acceptors are the things that accept the readings from the thermometers
 Currently there is a Console read acceptor, that just outputs the readings to the console, and the Sqlite read acceptor,
 which writes them to the Sqlite DB configured in the database section
