@@ -82,7 +82,7 @@ func (psql PostgresDB) Latest(thermometer string) (thermometers.Reading, error) 
 }
 
 const postgresReadingsBetween = `
-	SELECT name, unit, temperature, date  
+	SELECT name, temperature, unit, date  
 	FROM readings 
 	WHERE name = $1
 	AND date >= $2
