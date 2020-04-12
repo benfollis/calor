@@ -28,6 +28,13 @@ func (sb LoadedConfigBinder) Bind(config LoadedConfig) BoundConfig {
 				Name:     unboundTherm.Name,
 				SensorId: sensorId,
 			}
+		case "Thermopylae":
+			options := unboundTherm.Options
+			url := options["Url"]
+			bound.Thermometer = thermometers.Thermopylae{
+				Name: unboundTherm.Name,
+				Url:  url,
+			}
 		}
 		boundTherms[index] = bound
 	}

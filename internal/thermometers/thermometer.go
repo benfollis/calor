@@ -13,5 +13,5 @@ type Reading struct {
 
 // All Thermometers must be able to take a reading
 type Thermometer interface {
-	Read() Reading
+	Read() (Reading, error)
 }

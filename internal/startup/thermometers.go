@@ -4,6 +4,7 @@ import (
 	"github.com/benfollis/calor/internal/config"
 	"github.com/benfollis/calor/internal/pubsub"
 	"github.com/benfollis/calor/internal/readings"
+	"github.com/benfollis/calor/internal/utils"
 	"sync"
 	"time"
 )
@@ -19,8 +20,11 @@ func StartThermometers(config config.BoundConfig, ps *pubsub.PubSub) sync.WaitGr
 			for {
 				select {
 				case <-ticker.C:
-					reading := thermometer.Read()
-					ps.Publish(readings.Topic, reading)
+					reading, err := thermometer.Read()
+					utils.CheckLog(err)
+					if err == nil {
+						ps.Publish(readings.Topic, reading)
+					}
 				}
 			}
 		}(&twg)

@@ -12,6 +12,14 @@
       "Options": {
         "SensorId": "28-8000000476c9"
       }
+    },
+    {
+      "Name": "The300",
+      "DriverType": "Thermopylae",
+      "UpdateInterval": 10,
+      "Options": {
+        "Url": "http://192.168.1.150:8081/leonidas"
+      }
     }
   ],
   "Database": {

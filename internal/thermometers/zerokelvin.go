@@ -13,12 +13,12 @@ type ZeroKelvin struct {
 	Name string
 }
 
-func (zk ZeroKelvin) Read() Reading {
+func (zk ZeroKelvin) Read() (Reading, error) {
 	reading := Reading{
 		Temp: 0,
 		Unit: "K",
 		Name: zk.Name,
 		Time: time.Now(),
 	}
-	return reading;
+	return reading, nil
 }

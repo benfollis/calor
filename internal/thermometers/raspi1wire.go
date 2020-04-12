@@ -13,14 +13,17 @@ type Raspi1Wire struct{
 	SensorId string
 }
 
-func (rw1 Raspi1Wire) Read() Reading{
+func (rw1 Raspi1Wire) Read() (Reading, error){
 	temp, err := ds18b20.Temperature(rw1.SensorId)
 	utils.CheckLog(err)
+	if err != nil {
+		return Reading{}, err
+	}
 	reading := Reading{
 		Temp: temp,
 		Unit: "C",
 		Name: rw1.Name,
 		Time: time.Now(),
 	}
-	return reading
+	return reading, nil
 }
