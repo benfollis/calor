@@ -48,7 +48,11 @@ INSERT INTO readings(name, temperature, unit, date) VALUES ($1, $2, $3, $4)
 
 func (psql PostgresDB) InsertReading(reading thermometers.Reading) {
 	db := psql.database
-	tx, stmt := PrepareStatement(db, postgresInsertReading)
+	tx, stmt, err := PrepareStatement(db, postgresInsertReading)
+	utils.CheckLog(err);
+	if err != nil {
+		return
+	}
 	defer stmt.Close()
 	stmt.Exec(reading.Name, reading.Temp, reading.Unit, reading.Time)
 	tx.Commit()
@@ -62,18 +66,21 @@ const postgresLatest = `
 	LIMIT 1
 `
 
-func postgresMakeReading(rows *sql.Rows) thermometers.Reading {
+func postgresMakeReading(rows *sql.Rows) (thermometers.Reading, error) {
 	var name, unit string
 	var temp float64
 	var readingTime time.Time
 	err := rows.Scan(&name, &temp, &unit, &readingTime)
 	utils.CheckLog(err)
+	if err != nil {
+		return thermometers.Reading{}, err
+	}
 	return thermometers.Reading{
 		Temp: temp,
 		Unit: unit,
 		Name: name,
 		Time: readingTime,
-	}
+	}, nil
 }
 
 
@@ -93,21 +100,34 @@ const postgresReadingsBetween = `
 // process dates because they'll represent dates differently
 func (psql PostgresDB) Between(name string, timestampRange UnixTimestampRange) ([]thermometers.Reading, error) {
 	db := psql.database
-	tx, stmt := PrepareStatement(db, postgresReadingsBetween)
+	tx, stmt, err := PrepareStatement(db, postgresReadingsBetween)
+	utils.CheckLog(err)
+	if err != nil {
+		return []thermometers.Reading{}, err
+	}
 	defer stmt.Close()
 	end := timestampRange.End
 	if end == 0 {
 		end = int64(time.Now().Unix())
 	}
 	rows, err := stmt.Query(name, time.Unix(timestampRange.Begin, 0), time.Unix(end, 0))
-	defer rows.Close()
 	utils.CheckLog(err)
+	if err != nil {
+		return []thermometers.Reading{}, err
+	}
+	defer rows.Close()
 	readings := make([]thermometers.Reading, 0)
-	searchError := errors.New("404")
 	for rows.Next() {
-		searchError = nil
-		readings = append(readings, postgresMakeReading(rows))
+		reading, err :=  postgresMakeReading(rows)
+		utils.CheckLog(err)
+		if err != nil {
+			return readings, err
+		}
+		readings = append(readings, reading)
+	}
+	if len(readings) == 0 {
+		return readings, errors.New("not found")
 	}
 	tx.Commit()
-	return readings, searchError
+	return readings, nil
 }

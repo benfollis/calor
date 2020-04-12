@@ -59,9 +59,12 @@ func (sqldb SqliteDB) InsertReading(reading thermometers.Reading) {
 	case "C":
 		kelvin = reading.Temp + 273.15
 	}
-	tx, stmt := PrepareStatement(db, insertRow)
-	_, err := stmt.Exec(reading.Name, reading.Unit, reading.Temp, kelvin, reading.Time.Unix())
+	tx, stmt, err := PrepareStatement(db, insertRow)
 	utils.CheckLog(err)
+	if err != nil {
+		return
+	}
+	stmt.Exec(reading.Name, reading.Unit, reading.Temp, kelvin, reading.Time.Unix())
 	defer stmt.Close()
 	tx.Commit()
 }
@@ -75,19 +78,21 @@ const sqliteLastReading = `
 	LIMIT 1
 `
 
-func sqliteMakeReading(rows *sql.Rows) thermometers.Reading {
+func sqliteMakeReading(rows *sql.Rows) (thermometers.Reading, error) {
 	var name, unit string
 	var temperature float64
 	var unixtime int64
 	err := rows.Scan(&name, &unit, &temperature, &unixtime)
-	utils.CheckLog(err)
+	if err != nil {
+		return thermometers.Reading{}, err
+	}
 	result := thermometers.Reading{
 		Temp: temperature,
 		Unit: unit,
 		Name: name,
 		Time: time.Unix(unixtime, 0),
 	}
-	return result
+	return result, nil
 }
 
 func (sqldb SqliteDB) Latest(thermometer string) (thermometers.Reading, error) {
@@ -104,21 +109,33 @@ SELECT name, unit, temperature, unixtime
 `
 func (sqldb SqliteDB) Between(name string, timestampRange UnixTimestampRange) ([]thermometers.Reading, error) {
 	db := sqldb.DB()
-	tx, stmt := PrepareStatement(db, sqliteReadingsBetween)
+	tx, stmt, err := PrepareStatement(db, sqliteReadingsBetween)
+	utils.CheckLog(err)
+	if err != nil {
+		return []thermometers.Reading{}, err
+	}
 	defer stmt.Close()
 	end := timestampRange.End
 	if end == 0 {
 		end = int64(time.Now().Unix())
 	}
 	rows, err := stmt.Query(name, timestampRange.Begin, end)
-	defer rows.Close()
 	utils.CheckLog(err)
+	if err != nil {
+		return []thermometers.Reading{}, err
+	}
+	defer rows.Close()
 	readings := make([]thermometers.Reading, 0)
-	searchError := errors.New("404")
 	for rows.Next() {
-		searchError = nil
-		readings = append(readings, sqliteMakeReading(rows))
+		reading, err := sqliteMakeReading(rows)
+		if err != nil {
+			return readings, err
+		}
+		readings = append(readings, reading)
+	}
+	if len(readings) == 0 {
+		return readings, errors.New("not found")
 	}
 	tx.Commit()
-	return readings, searchError
+	return readings, nil
 }

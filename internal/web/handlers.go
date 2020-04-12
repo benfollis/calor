@@ -2,6 +2,7 @@ package web
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/benfollis/calor/internal/database"
 	"net/http"
@@ -25,65 +26,65 @@ func respondNotFound(w http.ResponseWriter) {
 	fmt.Fprint(w, "Not Found")
 }
 
-func DiscoveryGenerator(config WebConfig) func(w http.ResponseWriter, r *http.Request) {
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		names := make([]string, len(config.Thermometers))
-		for index, therm := range config.Thermometers {
-			names[index] = therm.Name
-		}
-		respondWithData(names, w);
-	}
-	return handler
+
+type calorGenerator struct {
+	config WebConfig
+	handler calorHandler
 }
 
-func LatestGenerator(config WebConfig) func(w http.ResponseWriter, r *http.Request) {
-	db := config.DB
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		url := r.URL
-		path := url.Path
-		chunks := strings.Split(path, "/")
-		// path should be of the form /latest/<thermometer name>
-		if len(chunks) != 3 {
-			w.WriteHeader(400)
-		}
-		name := chunks[2]
-		fmt.Println("Received request for thermometer", name)
-		reading, err := db.Latest(name)
-		if err != nil {
-			respondNotFound(w)
-			return
-		}
-		respondWithData(reading, w);
+type calorHandler func(config WebConfig, w http.ResponseWriter, r *http.Request) (interface{}, error)
+
+func (cg calorGenerator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if data ,err := cg.handler(cg.config, w, r); err != nil {
+		respondNotFound(w)
+	}else{
+		respondWithData(data, w)
 	}
-	return handler
 }
 
-// BetweenGenerator generates a HandlerFunc to respond to between calls
-func BetweenGenerator(config WebConfig) func(w http.ResponseWriter, r *http.Request) {
-	db := config.DB
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		url := r.URL
-		path := url.Path
-		chunks := strings.Split(path, "/")
-		// path should be of the form /between/<thermometer name>?start=<unixTime>&end=<unixTime>
-		if len(chunks) != 3 {
-			w.WriteHeader(400)
-		}
-		name := chunks[2]
-		fmt.Println("Received between request for thermometer", name)
-		query := url.Query()
-		start, _ := strconv.ParseInt(query.Get("start"), 10, 64)
-		end, _ := strconv.ParseInt(query.Get("end"), 10, 64)
-		timestampRange := database.UnixTimestampRange{
-			Begin: start,
-			End:   end,
-		}
-		readings, err := db.Between(name, timestampRange)
-		if err != nil {
-			respondNotFound(w)
-			return
-		}
-		respondWithData(readings, w);
+func discover(config WebConfig, w http.ResponseWriter, r *http.Request) (interface{}, error) {
+	names := make([]string, len(config.Thermometers))
+	for index, therm := range config.Thermometers {
+		names[index] = therm.Name
 	}
-	return handler
+	return names, nil
 }
+
+
+func latest(config WebConfig, w http.ResponseWriter, r *http.Request) (interface{}, error) {
+	url := r.URL
+	path := url.Path
+	chunks := strings.Split(path, "/")
+	// path should be of the form /latest/<thermometer name>
+	if len(chunks) != 3 {
+		return nil, errors.New("no thermometer")
+	}
+	db := config.DB
+	name := chunks[2]
+	fmt.Println("Received request for thermometer", name)
+	reading, err := db.Latest(name)
+	return reading, err
+}
+
+func between(config WebConfig, w http.ResponseWriter, r *http.Request) (interface{}, error) {
+	db := config.DB
+	url := r.URL
+	path := url.Path
+	chunks := strings.Split(path, "/")
+	// path should be of the form /between/<thermometer name>?start=<unixTime>&end=<unixTime>
+	if len(chunks) != 3 {
+		return nil, errors.New("no thermometer")
+	}
+	name := chunks[2]
+	fmt.Println("Received between request for thermometer", name)
+	query := url.Query()
+	start, _ := strconv.ParseInt(query.Get("start"), 10, 64)
+	end, _ := strconv.ParseInt(query.Get("end"), 10, 64)
+	timestampRange := database.UnixTimestampRange{
+		Begin: start,
+		End:   end,
+	}
+	readings, err := db.Between(name, timestampRange)
+	return readings, err
+}
+

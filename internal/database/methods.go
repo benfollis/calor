@@ -33,24 +33,34 @@ func CreateTable(db *sql.DB, createString string) {
 
 
 // Prepare statements prepares the given statement for a transaction
-func PrepareStatement(db *sql.DB, statement string) (*sql.Tx, *sql.Stmt) {
+func PrepareStatement(db *sql.DB, statement string) (*sql.Tx, *sql.Stmt, error) {
 	tx, err := db.Begin()
-	utils.CheckLog(err)
+	if err != nil {
+		return nil, nil, err
+	}
 	stmt, err := tx.Prepare(statement)
-	utils.CheckLog(err)
-	return tx, stmt
+	if err != nil {
+		return nil, nil, err
+	}
+	return tx, stmt, nil
 }
 
+type readingMaker func (rows *sql.Rows) (thermometers.Reading, error)
 // Fetches a single reading from the DB
-func FetchLatest(db *sql.DB, querySQL string, thermometer string, readingMaker func (rows *sql.Rows) thermometers.Reading) (thermometers.Reading, error) {
-	tx, stmt := PrepareStatement(db, querySQL)
+func FetchLatest(db *sql.DB, querySQL string, thermometer string, rm readingMaker)(thermometers.Reading, error) {
+	tx, stmt, err := PrepareStatement(db, querySQL)
+	if err != nil {
+		return thermometers.Reading{}, err
+	}
 	rows, err := stmt.Query(thermometer)
-	utils.CheckLog(err)
+	if err != nil {
+		return thermometers.Reading{}, err
+	}
 	defer stmt.Close()
 	defer rows.Close()
 	searchError := errors.New("404")
 	if rows.Next() { // should have only one
-		return readingMaker(rows), nil
+		return rm(rows)
 	}
 	tx.Commit()
 	return thermometers.Reading{}, searchError
