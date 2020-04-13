@@ -110,7 +110,9 @@ func (psql PostgresDB) Between(name string, timestampRange UnixTimestampRange) (
 	if end == 0 {
 		end = int64(time.Now().Unix())
 	}
-	rows, err := stmt.Query(name, time.Unix(timestampRange.Begin, 0), time.Unix(end, 0))
+	startTime := time.Unix(timestampRange.Begin, 0)
+	endTime := time.Unix(end, 0)
+	rows, err := stmt.Query(name, startTime, endTime)
 	utils.CheckLog(err)
 	if err != nil {
 		return []thermometers.Reading{}, err
